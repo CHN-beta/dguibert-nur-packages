@@ -1,7 +1,7 @@
 {
   url, version, sha256,
-  lib, stdenv, fetchurl, nix-patchtools,
-  more, zlib, ncurses, libxml2, glibc, file, gcc, flock, rdma-core
+  lib, stdenv, fetchurl, autoPatchelfHook,
+  zlib, libxml2, glibc, rdma-core, cudaPackages, flock
 }:
 stdenv.mkDerivation
 {
@@ -12,20 +12,24 @@ stdenv.mkDerivation
 
   # manually patch it in installPhase
   dontPatchELF = true;
-  buildInputs = [ nix-patchtools more zlib ncurses libxml2 glibc file gcc flock rdma-core ];
+  buildInputs = [ autoPatchelfHook zlib libxml2 glibc stdenv.cc.cc rdma-core cudaPackages.cudatoolkit flock ];
   installPhase =
   # ref to upstream install script
   ''
     mkdir -p $out
-    mv install_components/Linux_x86_64/${version}/{comm_libs,compilers,cuda,examples,math_libs,profilers,REDIST} $out
-    for i in libibverbs.so* librdmacm.so* libnl-3.so* libnl-route-3.so*; do
-      rm $out/comm_libs/mpi/lib/$i
-    done
+
+    # mv install_components/Linux_x86_64/${version}/{comm_libs,compilers,cuda,examples,math_libs,profilers,REDIST} $out
+    # for i in libibverbs.so* librdmacm.so* libnl-3.so* libnl-route-3.so*; do
+    #   rm $out/comm_libs/mpi/lib/$i
+    # done
+
+    # current only install compilers
+    mv install_components/Linux_x86_64/${version}/compilers/* $out
     autoPatchelf $out
-    $out/compilers/bin/makelocalrc -x $out/compilers/bin
-    rm -f $out/compilers/glibc_version
-    mkdir $out/bin
-    ln -s $out/compilers/bin/* $out/bin/
+    patchShebangs $out
+    # $out/compilers/bin/makelocalrc -x $out/compilers/bin
+    $out/bin/makelocalrc -x $out/bin -cuda ${cudaPackages.cudaVersion} -stdpar 80
+    rm -f $out/glibc_version
   '';
   passthru =
   {
