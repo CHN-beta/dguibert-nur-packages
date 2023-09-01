@@ -31,20 +31,20 @@ let
       cc = unwrapped;
       extraPackages = [
       ];
-      extraBuildCommands = ''
-      ccLDFlags+=" -L${prev.numactl}/lib -rpath,${prev.numactl}/lib"
-      echo "$ccLDFlags" > $out/nix-support/cc-ldflags
-      '';
+      # extraBuildCommands = ''
+      # ccLDFlags+=" -L${prev.numactl}/lib -rpath,${prev.numactl}/lib"
+      # echo "$ccLDFlags" > $out/nix-support/cc-ldflags
+      # '';
     } // args_);
     stdenv = prev.overrideCC prev.stdenv nvhpc;
   };
 
 in
 {
-  nvhpcPackages_21_7 = nvhpcPackages {
-    version="21.7";
-    url = "https://developer.download.nvidia.com/hpc-sdk/21.7/nvhpc_2021_217_Linux_x86_64_cuda_11.4.tar.gz";
-    sha256 ="sha256-4gYuC09W9LMe2I0I+MufNxvy8vsMWaBrJHODPHQsi3U=";
+  nvhpcPackages_23_7 = nvhpcPackages {
+    version="23.7";
+    url = "https://developer.download.nvidia.com/hpc-sdk/23.7/nvhpc_2023_237_Linux_x86_64_cuda_multi.tar.gz";
+    sha256 ="1kmypv66427pbzydvmmyx2nh2850r9qh7rgxgb7a3g0qzyaivagy";
     libcxx = null;
   };
 }
